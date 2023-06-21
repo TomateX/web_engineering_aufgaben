@@ -1,5 +1,3 @@
-let repoNames = [];
-
 list = document.getElementById('repos-list');
 message = document.getElementById('message');
 

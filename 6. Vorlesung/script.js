@@ -1,31 +1,33 @@
-let repoNames = [];
+import { Octokit } from "octokit";
 
-list = document.getElementById('repos-list');
-message = document.getElementById('message');
+const message = document.getElementById('message');
+const list = document.getElementById('repos-list');
+const octokit = new Octokit();
 
-function getRepos(){
-    list.innerHTML = '';
-    message.innerHTML = '';
-    fetch('https://api.github.com/user/repos', {
-    headers: {
-            'Authorization': 'Bearer ' + document.getElementById('password').value
-        }
-    })
-    .then(response => {
-        if (response.status == 200){
-            return response.json();
-        }
-        else{
-            return Promise.reject(response);
-        }
-    })
-    .then(data => {
-        data.forEach(element => {
-            listElement = document.createElement("li");
-            elementName = document.createTextNode(element.name);
-            listElement.appendChild(elementName);
-            list.appendChild(listElement);
-        })
-    })
-    .catch(error => error.json().then(err => message.innerHTML = err.message));
+async function getRepos() {
+  list.innerHTML = '';
+  message.innerHTML = '';
+
+  try {
+    const response = await octokit.request('GET /user/repos', {
+      headers: {
+        authorization: `Bearer ${password}`
+      }
+    });
+
+    if (response.status === 200) {
+      const data = response.data;
+      data.forEach(element => {
+        const listElement = document.createElement('li');
+        const elementName = document.createTextNode(element.name);
+        listElement.appendChild(elementName);
+        list.appendChild(listElement);
+      });
+    } else {
+      throw new Error(response);
+    }
+  } catch (error) {
+    const err = await error.json();
+    message.innerHTML = err.message;
+  }
 }
